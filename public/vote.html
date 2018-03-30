@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>奇葩说投票</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <div class="container text-center">
+        <h4 id="uid"></h4>
+        <form>
+            <fieldset class="form-group" id="team">
+                <legend>您现在支持哪个论点：</legend>
+                <div class="form-check">
+                    <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="1" checked>正方
+                </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="2">反方
+                  </label>
+                </div>
+            </fieldset>
+            <button class="btn btn-primary" id="vote" data-toggle="modal" data-target="#message">提交投票</button>
+        </form>
+        <!-- <p id="test"></p> -->
+
+        <div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <p>感谢投票！ 您可以随时重新投票来改变您支持的队伍！</p>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase-database.js"></script>
+    <script>
+        // Initialize Firebase
+        function getUserID() {
+            var reg = new RegExp("(^|&)" + "id" + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            var pwd = "qipashuo12345678";
+            var context = "";
+            if (r != null)
+                context = r[2];
+            r = null;
+            if (context == null || context == "" || context == "undefined") {
+                return "";
+            } else {
+                // var para = document.getElementById("test");
+                //
+                // for (var i = 101; i < 201; i++) {
+                //     var encrypted = CryptoJS.AES.encrypt(String(i), pwd).toString();
+                //     para.textContent += "https://dynamicvoter.firebaseapp.com/vote?id=" + encrypted + "\n";
+                // }
+                var result = CryptoJS.AES.decrypt(context, pwd).toString(CryptoJS.enc.Utf8);
+                return result;
+            }
+        }
+        var uid = getUserID();
+        if (Number(uid) > 100 && Number(uid) < 201) {
+            $('#uid').text("第 " + uid + " 号观众");
+        } else {
+            $('#uid').text("无效观众链接！请联系工作人员");
+        }
+        console.log(uid);
+        var config = {
+            apiKey: "AIzaSyD3OPzeOkSUAsNFLBAXiYEDWJnvYycV61c",
+            authDomain: "dynamicvoter.firebaseapp.com",
+            databaseURL: "https://dynamicvoter.firebaseio.com",
+            projectId: "dynamicvoter",
+            storageBucket: "dynamicvoter.appspot.com",
+            messagingSenderId: "699923694587"
+        };
+        firebase.initializeApp(config);
+        var database = firebase.database();
+
+        function writeVote(uid, tid, pid) {
+            firebase.database().ref('users/' + uid).set({
+                team: tid,
+                player: pid,
+            });
+        }
+        $('#vote').on('click', function(event) {
+            event.preventDefault();
+            var tid = $('#team input:radio:checked').val();
+            writeVote(uid, tid, 4);
+        });
+    </script>
+
+
+</body>
+
+</html>
